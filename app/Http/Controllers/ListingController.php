@@ -8,10 +8,10 @@ use Illuminate\Validation\Rule;
 
 class ListingController extends Controller
 {
-    // Show all listing
+    // Show all listings
     public function index() {
         return view('listings.index', [
-            'listings' => Listing::latest()->filter(request(['tag', 'search']))->get()
+            'listings' => Listing::latest()->filter(request(['tag', 'search']))->paginate(4)
         ]);
     }
 
@@ -39,9 +39,18 @@ class ListingController extends Controller
             'description' => 'required'
         ]);
 
+        if($request->hasFile('logo')) {
+            $formFields['logo'] = $request->file('logo')->store('logos', 'public');
+        }
+
         Listing::create($formFields);
 
         return redirect('/')->with('message', 'Listing created successfully!');
 
+    }
+
+    // Show Edit Form
+    public function edit(Listing $listing) {
+        return view('listings.edit', ['listing' => $listing]);
     }
 }
